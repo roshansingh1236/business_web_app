@@ -203,8 +203,8 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             new Container(
-                              height: 100,
-                              width: 100,
+                              height: 150,
+                              width: 150,
                               alignment: Alignment.center,
                               decoration: new BoxDecoration(
                                 shape: BoxShape.circle,
@@ -217,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: _logo != null
                                   ? CircleAvatar(
-                                      radius: 100,
+                                      radius: 150,
                                       backgroundImage: NetworkImage(_logo))
                                   : Text(
                                       _name != null ? _name[0] : "",

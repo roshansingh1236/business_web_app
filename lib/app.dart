@@ -86,6 +86,7 @@ class App extends StatelessWidget {
           return SplashPage();
         },
       ),
+      initialRoute: '/',
       routes: routes,
     );
   }

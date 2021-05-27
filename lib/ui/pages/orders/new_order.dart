@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
+import 'package:bussiness_web_app/utils/navigation_util.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:bussiness_web_app/config/env.dart';
 import 'package:bussiness_web_app/ui/widgets/common_widgets.dart';
 import 'package:http/http.dart' as http;
+
+import 'order_details.dart';
 
 class NewOrderPage extends StatefulWidget {
   @override
@@ -27,9 +31,11 @@ class _HomePageState extends State<NewOrderPage> {
   String id1;
   bool show = false;
   DateTime _currentSelected = DateTime.now();
-  String _id;
   var myController = TextEditingController();
-
+  List _options1 = ['confirmed', 'processing', 'shipped', 'delivered'];
+  List _options2 = ['processing', 'shipped', 'delivered'];
+  List _options3 = ['shipped', 'delivered'];
+  List _options4 = ['delivered'];
   //api calling for get Apt
   Future<String> getOrder() async {
     setState(() {
@@ -52,7 +58,6 @@ class _HomePageState extends State<NewOrderPage> {
         {
           var resBody = json.decode(res.body)['orders'];
           _orderList = resBody.toList();
-          print(_orderList);
           setState(() {
             showProgressloading = false;
           });
@@ -137,8 +142,16 @@ class _HomePageState extends State<NewOrderPage> {
       token = "JWTV" + " " + Cache.storage.getString('authToken');
       vendorId = Cache.storage.getString('bussinessId');
     });
-    print(vendorId);
+
     this.getOrder();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      this.getOrder();
+    });
   }
 
   // ignore: non_constant_identifier_names
@@ -166,7 +179,6 @@ class _HomePageState extends State<NewOrderPage> {
                                   setState(() {
                                     id1 = item['_id'];
                                   });
-                                  print(id1);
                                 },
                                 child: Padding(
                                     padding:
@@ -178,10 +190,15 @@ class _HomePageState extends State<NewOrderPage> {
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
-                                          colors: [
-                                            Color(0xff314498),
-                                            Color(0xff2E879A),
-                                          ],
+                                          colors: item['status'] == "reject"
+                                              ? [
+                                                  Colors.grey,
+                                                  Colors.grey,
+                                                ]
+                                              : [
+                                                  Color(0xff314498),
+                                                  Color(0xff2E879A),
+                                                ],
                                         ),
                                         boxShadow: [
                                           BoxShadow(
@@ -197,6 +214,20 @@ class _HomePageState extends State<NewOrderPage> {
                                             setState(() {
                                               id1 = item['_id'];
                                             });
+                                            NavigationUtil.pushToNewScreen(
+                                                context,
+                                                OrderDetailsPage(
+                                                    id: item,
+                                                    userName: item['user_id']
+                                                            ['name']['first'] +
+                                                        " " +
+                                                        item['user_id']['name']
+                                                            ['last'],
+                                                    total: item['total'],
+                                                    delivery:
+                                                        item['delivery_add'],
+                                                    id1: item['_id'],
+                                                    status: item['status']));
                                             // You enter here what you want the button to do once the user interacts with it
                                           },
                                           icon: Image.asset(
@@ -208,7 +239,7 @@ class _HomePageState extends State<NewOrderPage> {
                                         ),
                                         title: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                MainAxisAlignment.start,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
@@ -221,31 +252,21 @@ class _HomePageState extends State<NewOrderPage> {
                                                         width: 35.0,
                                                         height: 35.0,
                                                       ))),
-                                              Column(children: [
-                                                Container(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      2.1,
-                                                  child: Text(
-                                                      item['user_id']['name'] !=
-                                                              null
-                                                          ? item['user_id']
-                                                                      ['name']
-                                                                  ['first'] +
-                                                              " " +
-                                                              item['user_id']
-                                                                      ['name']
-                                                                  ['last']
-                                                          : "",
-                                                      textScaleFactor: 1.0,
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ),
-                                              ])
+                                              Text(
+                                                  item['user_id']['name'] !=
+                                                          null
+                                                      ? item['user_id']['name']
+                                                              ['first'] +
+                                                          " " +
+                                                          item['user_id']
+                                                              ['name']['last']
+                                                      : "",
+                                                  textScaleFactor: 1.0,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
                                             ]),
                                         children: <Widget>[
                                           ListTile(
@@ -339,114 +360,94 @@ class _HomePageState extends State<NewOrderPage> {
                                                                     FontWeight
                                                                         .w500)),
                                                       )),
-                                                  Container(
-                                                      height: item['cart'][0]
-                                                                      ['data']
-                                                                  .length !=
-                                                              0
-                                                          ? 150
-                                                          : 0,
-                                                      width: 300,
-                                                      child: ListView.separated(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                top: 8,
-                                                                left: 0,
-                                                                right: 0,
-                                                                bottom: 8),
-                                                        itemCount: item['cart']
-                                                                [0]['data']
-                                                            .length,
-                                                        reverse: false,
-                                                        itemBuilder:
-                                                            (BuildContext
-                                                                    context,
-                                                                int index) {
-                                                          return InkWell(
-                                                              onTap: () {},
-                                                              child: ListTile(
-                                                                trailing: Text(
-                                                                  item['cart'][0]['data'][index]
-                                                                              [
-                                                                              'quantity']
-                                                                          .toString() +
-                                                                      " " +
-                                                                      item['cart']
-                                                                              [
-                                                                              0]['data'][index]['productid']['inventory']
-                                                                          [
-                                                                          'unit_type'],
-                                                                  textScaleFactor:
-                                                                      1.0,
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontSize:
-                                                                          16,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w700),
-                                                                ),
-                                                                title: Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .start,
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Padding(
-                                                                          padding: EdgeInsets.only(
-                                                                              right:
-                                                                                  10),
-                                                                          child:
-                                                                              Image.asset(
-                                                                            'assets/images/Group 7.png',
-                                                                            width:
-                                                                                11.0,
-                                                                            height:
-                                                                                11.0,
-                                                                          )),
-                                                                      Container(
+                                                  for (var item1
+                                                      in item['cart'])
+                                                    SafeArea(
+                                                        child:
+                                                            ListView.separated(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 0),
+                                                      itemCount:
+                                                          item1['data'].length,
+                                                      shrinkWrap: true,
+                                                      physics:
+                                                          NeverScrollableScrollPhysics(),
+                                                      reverse: false,
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
+                                                        return InkWell(
+                                                            onTap: () {},
+                                                            child: ListTile(
+                                                              trailing: Text(
+                                                                item1['data'][index]
+                                                                            [
+                                                                            'quantity']
+                                                                        .toString() +
+                                                                    " qty.",
+                                                                textScaleFactor:
+                                                                    1.0,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700),
+                                                              ),
+                                                              title: Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .start,
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Padding(
+                                                                        padding: EdgeInsets.only(
+                                                                            right:
+                                                                                10),
+                                                                        child: Image
+                                                                            .asset(
+                                                                          'assets/images/Group 7.png',
+                                                                          width:
+                                                                              11.0,
+                                                                          height:
+                                                                              11.0,
+                                                                        )),
+                                                                    Container(
                                                                         width: MediaQuery.of(context).size.width /
-                                                                            2.5,
-                                                                        child:
-                                                                            Text(
-                                                                          item['cart'][0]['data'][index]['productid']
-                                                                              [
-                                                                              'product_name'],
-                                                                          textScaleFactor:
-                                                                              1.0,
-                                                                          style: TextStyle(
-                                                                              color: Colors.white,
-                                                                              fontSize: 16,
-                                                                              fontWeight: FontWeight.w700),
-                                                                        ),
-                                                                      ),
-                                                                      Text(
-                                                                        "-",
-                                                                        textScaleFactor:
-                                                                            1.0,
-                                                                        style: TextStyle(
-                                                                            color: Colors
-                                                                                .white,
-                                                                            fontSize:
-                                                                                16,
-                                                                            fontWeight:
-                                                                                FontWeight.w700),
-                                                                      ),
-                                                                    ]),
-                                                              ));
-                                                        },
-                                                        separatorBuilder:
-                                                            (BuildContext
-                                                                        context,
-                                                                    int index) =>
-                                                                Divider(
-                                                          thickness: 1,
-                                                        ),
-                                                      )),
+                                                                            1.8,
+                                                                        child: Column(
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Text(
+                                                                                item1['data'][index]['productid']['product_name'] + ", " + item1['data'][index]['productid']['brand_name'],
+                                                                                textScaleFactor: 1.0,
+                                                                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                                                                              ),
+                                                                              Text(
+                                                                                item1['data'][index]['productid']['product_type'] + ", " + item1['data'][index]['productid']['inventory']['quantity'].toString() + " " + item1['data'][index]['productid']['inventory']['unit_type'],
+                                                                                textScaleFactor: 1.0,
+                                                                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                                                                              ),
+                                                                            ])),
+                                                                  ]),
+                                                            ));
+                                                      },
+                                                      separatorBuilder:
+                                                          (BuildContext context,
+                                                                  int index) =>
+                                                              Divider(
+                                                        thickness: 1,
+                                                      ),
+                                                    )),
+                                                  Divider(
+                                                    thickness: 1,
+                                                  ),
                                                   Padding(
                                                       padding: EdgeInsets.only(
                                                           right: 10,
@@ -464,7 +465,7 @@ class _HomePageState extends State<NewOrderPage> {
                                                             InkWell(
                                                                 onTap: () {
                                                                   setState(() {
-                                                                    _id = item[
+                                                                    id1 = item[
                                                                         '_id'];
                                                                   });
                                                                   _updateStatsusForOrder(
@@ -493,10 +494,12 @@ class _HomePageState extends State<NewOrderPage> {
                                                                                   20),
                                                                           child:
                                                                               Text(
-                                                                            'Reject Order',
+                                                                            item['status'] == "reject"
+                                                                                ? 'Rejected Order'
+                                                                                : 'Reject Order',
                                                                             style: TextStyle(
                                                                                 fontSize: 10,
-                                                                                color: Colors.white,
+                                                                                color: item['status'] == "reject" ? Colors.red : Colors.white,
                                                                                 fontWeight: FontWeight.bold),
                                                                           ))
                                                                     ])),
@@ -532,92 +535,54 @@ class _HomePageState extends State<NewOrderPage> {
                                                                                       padding: EdgeInsets.only(left: 20),
                                                                                       child: Text(
                                                                                         item['status'] == "pending"
-                                                                                            ? "Confirmed"
+                                                                                            ? "Confirm"
                                                                                             : item['status'] == "confirmed"
-                                                                                                ? "processing"
+                                                                                                ? "process"
                                                                                                 : item['status'] == "processing"
-                                                                                                    ? "Shipped"
+                                                                                                    ? "Ship"
                                                                                                     : item['status'] == "shipped"
-                                                                                                        ? "Delivere"
+                                                                                                        ? "Deliver"
                                                                                                         : "Confirm",
                                                                                         style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                                                                                       )),
-                                                                                  itemBuilder: (BuildContext bc) => [
-                                                                                    PopupMenuItem(
-                                                                                        child: Row(
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                                          children: [
-                                                                                            new Tooltip(
-                                                                                              message: "Status",
-                                                                                              preferBelow: true,
-                                                                                              child: Text("Pending"),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        value: "1"),
-                                                                                    PopupMenuItem(
-                                                                                        child: Row(
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                                          children: [
-                                                                                            new Tooltip(
-                                                                                              message: "Status",
-                                                                                              child: Text("confirmed"),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        value: "2"),
-                                                                                    PopupMenuItem(
-                                                                                        child: Row(
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                                          children: [
-                                                                                            new Tooltip(
-                                                                                              message: "Status",
-                                                                                              child: Text("processing"),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        value: "3"),
-                                                                                    PopupMenuItem(
-                                                                                        child: Row(
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                                          children: [
-                                                                                            new Tooltip(
-                                                                                              message: "Status",
-                                                                                              child: Text("shipped"),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        value: "4"),
-                                                                                    PopupMenuItem(
-                                                                                        child: Row(
-                                                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                                          children: [
-                                                                                            new Tooltip(
-                                                                                              message: "Status",
-                                                                                              child: Text("delivered"),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        value: "5"),
-                                                                                  ],
-                                                                                  onSelected: (route) {
+                                                                                  itemBuilder: item['status'] == "pending"
+                                                                                      ? (BuildContext bc) {
+                                                                                          return _options1
+                                                                                              .map((day) => PopupMenuItem(
+                                                                                                    child: Text(day.toUpperCase()),
+                                                                                                    value: day,
+                                                                                                  ))
+                                                                                              .toList();
+                                                                                        }
+                                                                                      : item['status'] == "confirmed"
+                                                                                          ? (BuildContext bc) {
+                                                                                              return _options2
+                                                                                                  .map((day) => PopupMenuItem(
+                                                                                                        child: Text(day.toUpperCase()),
+                                                                                                        value: day,
+                                                                                                      ))
+                                                                                                  .toList();
+                                                                                            }
+                                                                                          : item['status'] == "processing"
+                                                                                              ? (BuildContext bc) {
+                                                                                                  return _options3
+                                                                                                      .map((day) => PopupMenuItem(
+                                                                                                            child: Text(day.toUpperCase()),
+                                                                                                            value: day,
+                                                                                                          ))
+                                                                                                      .toList();
+                                                                                                }
+                                                                                              : (BuildContext bc) {
+                                                                                                  return _options4
+                                                                                                      .map((day) => PopupMenuItem(
+                                                                                                            child: Text(day.toUpperCase()),
+                                                                                                            value: day,
+                                                                                                          ))
+                                                                                                      .toList();
+                                                                                                },
+                                                                                  onSelected: (value) {
                                                                                     // Note You must create respective pages for navigation
-                                                                                    if (route == "1") {
-                                                                                      _updateStatsusForOrder("pending");
-                                                                                    } else if (route == "2") {
-                                                                                      _updateStatsusForOrder("confirmed");
-                                                                                    } else if (route == "3") {
-                                                                                      _updateStatsusForOrder("processing");
-                                                                                    } else if (route == "4") {
-                                                                                      _updateStatsusForOrder("shipped");
-                                                                                    } else if (route == "5") {
-                                                                                      _updateStatsusForOrder("delivered");
-                                                                                    }
+                                                                                    _updateStatsusForOrder(value);
                                                                                   },
                                                                                 ),
                                                                                 Text(
@@ -659,8 +624,9 @@ class _HomePageState extends State<NewOrderPage> {
       bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
       backgroundColor: Color(0xffF0F6FB),
       resizeToAvoidBottomInset: false,
+      appBar: CommonWidgets1.getAppBar(context),
       body: Container(
-        padding: const EdgeInsets.only(top: 60, left: 10),
+        padding: const EdgeInsets.only(top: 5, left: 10),
         height: MediaQuery.of(context).size.height,
         child: new SingleChildScrollView(
             scrollDirection: Axis.vertical,

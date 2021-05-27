@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -711,7 +712,7 @@ class _HomePageState extends State<PropertyPage> {
                   width: 150,
                   child: Padding(
                     padding: EdgeInsets.only(
-                        left: 20.0, top: _unitType == null ? 10 : 0),
+                        left: 10.0, top: _unitType == null ? 10 : 10),
                     child: DropdownButton(
                       isExpanded: true,
                       iconEnabledColor: Colors.black,
@@ -769,12 +770,12 @@ class _HomePageState extends State<PropertyPage> {
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                  width: 310,
+                  width: 330,
                   child: Padding(
-                      padding: EdgeInsets.only(top: 0.0),
+                      padding: EdgeInsets.only(left: 20.0),
                       child: TextFormField(
                         controller: noOfBathroom,
                         keyboardType: TextInputType.number,
@@ -2170,8 +2171,9 @@ class _HomePageState extends State<PropertyPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

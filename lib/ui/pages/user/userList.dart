@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bussiness_web_app/config/cache.dart';
@@ -157,7 +158,7 @@ class _HomePageState extends State<NewUserPage> {
                                         ),
                                         title: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                MainAxisAlignment.start,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
@@ -301,8 +302,9 @@ class _HomePageState extends State<NewUserPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

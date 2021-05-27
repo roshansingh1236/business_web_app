@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -79,8 +80,10 @@ class _HomePageState extends State<ExistingEnquiryPage> {
   }
 
   Future<String> getPropertyData() async {
-    var res = await http
-        .get(Uri.encodeFull(property1Url), headers: {"Authorization": token});
+    var res = await http.get(
+        Uri.encodeFull(
+            property1Url + "?filter[status]=open&filter[status]=confirmed"),
+        headers: {"Authorization": token});
     int statusCode = res.statusCode;
     switch (statusCode.toString()) {
       case '200':
@@ -229,7 +232,7 @@ class _HomePageState extends State<ExistingEnquiryPage> {
               "rent_start_price": int.parse(rentPrice.text),
               "rent_end_price": int.parse(rentPrice1.text),
               "address": address.text,
-              "unit_type": _unitType,
+              "no_bedroom": _unitType,
               "no_bathroom": noOfBathroom.text,
               "type": _type
             },
@@ -247,7 +250,7 @@ class _HomePageState extends State<ExistingEnquiryPage> {
               "selling_start_price": sellingPrice.text,
               "selling_end_price": sellingPrice1.text,
               "address": address.text,
-              "unit_type": _unitType,
+              "no_bedroom": _unitType,
               "no_bathroom": noOfBathroom.text,
               "type": _type
             },
@@ -271,9 +274,15 @@ class _HomePageState extends State<ExistingEnquiryPage> {
       setState(() {
         showProgressloading = false;
       });
-      // _displayCheckoutDialog(context);
-      _bottomSheetMore(context);
-      //  NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      if (property.length != 0) {
+        _bottomSheetMore(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Please Select Property !",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red);
+      }
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -360,7 +369,7 @@ class _HomePageState extends State<ExistingEnquiryPage> {
         showProgressloading = false;
       });
       Navigator.of(context, rootNavigator: true).pop();
-      NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      NavigationUtil.clearAllAndAdd(context, ListSchedulePage());
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -944,33 +953,40 @@ class _HomePageState extends State<ExistingEnquiryPage> {
                 );
               }).toList(),
               onChanged: (val) {
-                setState(
-                  () {
-                    _enquiry = val['name'];
-                    productName.text = val['name'];
-                    phone.text = val['phone_no'];
-                    email.text = val['email'];
-                    rentPrice.text =
-                        val['preference']['rent_start_price'].toString();
-                    rentPrice1.text =
-                        val['preference']['rent_end_price'].toString();
-                    sellingPrice.text =
-                        val['preference']['selling_start_price'].toString();
-                    sellingPrice1.text =
-                        val['preference']['selling_end_price'].toString();
-                    sizeName.text = val['preference']['size'].toString();
-                    _date = val['type'];
-                    _type = val['preference']['type'];
-                    _unitType = val['preference']['unit_type'];
-                    noOfBathroom.text =
-                        val['preference']['no_bathroom'].toString();
-                    noOfBedroom.text =
-                        val['preference']['no_bedroom'].toString();
-                    address.text = val['preference']['address'];
-                    _enquiryId = val['_id'];
-                    _show = true;
-                  },
-                );
+                try {
+                  setState(
+                    () {
+                      _enquiry = val['name'];
+                      productName.text = val['name'];
+                      phone.text = val['phone_no'];
+                      email.text = val['email'];
+                      rentPrice.text =
+                          val['preference']['rent_start_price'].toString();
+                      rentPrice1.text =
+                          val['preference']['rent_end_price'].toString();
+                      sellingPrice.text =
+                          val['preference']['selling_start_price'].toString();
+                      sellingPrice1.text =
+                          val['preference']['selling_end_price'].toString();
+                      sizeName.text = val['preference']['size'].toString();
+                      _date = val['type'];
+                      _type = val['preference']['type'];
+                      _unitType = val['preference']['no_bedroom'];
+                      noOfBathroom.text =
+                          val['preference']['no_bathroom'].toString();
+                      address.text = val['preference']['address'];
+                      _enquiryId = val['_id'];
+                      _show = true;
+                    },
+                  );
+                } catch (e) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  Fluttertoast.showToast(
+                      msg: "there is somthing error please contact to admin",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      backgroundColor: Colors.red);
+                }
               },
               //value: _type,
             ),
@@ -1374,9 +1390,7 @@ class _HomePageState extends State<ExistingEnquiryPage> {
   RaisedButton raisedButtonAddProperty(BuildContext context) {
     return RaisedButton(
       onPressed: () {
-        // _displayCheckoutDialog(context);
         _addPropertyRequest(context);
-        //_bottomSheetMore(context);
       },
       textColor: Colors.white,
       padding: const EdgeInsets.all(0.0),
@@ -1618,8 +1632,9 @@ class _HomePageState extends State<ExistingEnquiryPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

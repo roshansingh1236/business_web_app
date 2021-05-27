@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -717,6 +718,7 @@ class _HomePageState extends State<ListSchedulePage> {
                                                                 'open',
                                                                 'confirmed',
                                                                 'rented',
+                                                                'sold',
                                                                 'closed'
                                                               ].map(
                                                                 (val) {
@@ -844,10 +846,13 @@ class _HomePageState extends State<ListSchedulePage> {
                                     height: 28.0,
                                   ),
                                   Padding(
-                                      padding: EdgeInsets.only(right: 100),
+                                      padding: EdgeInsets.only(right: 0),
                                       child: Text(
-                                        details['enquiry_id']['preference']
-                                            ['address'],
+                                        details['enquiry_id']['preference'] !=
+                                                null
+                                            ? details['enquiry_id']
+                                                ['preference']['address']
+                                            : "",
                                         textScaleFactor: 1.0,
                                         style: TextStyle(
                                             fontSize: 18.0,
@@ -990,7 +995,7 @@ class _HomePageState extends State<ListSchedulePage> {
     } */
 
   _launchCaller() async {
-    var phone = "tel:" + _phone;
+    var phone = "tel:" + "+" + _phone;
     var url = phone;
     if (await canLaunch(url)) {
       await launch(url);
@@ -1266,51 +1271,62 @@ class _HomePageState extends State<ListSchedulePage> {
                                                       color: Colors.white,
                                                       width: 2,
                                                     )),
-                                                child: InkWell(
-                                                  child: item['property_id']
-                                                                  ['images']
-                                                              .length ==
-                                                          0
-                                                      ? Center(
-                                                          child: Text(
-                                                          item['property_id']
-                                                              ['name'][0],
-                                                          textScaleFactor: 1.0,
-                                                          style: TextStyle(
-                                                              fontSize: 28.0,
-                                                              color: Color(
-                                                                  0xff314498),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontFamily:
-                                                                  "Roboto"),
-                                                        ))
-                                                      : ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10.0),
-                                                          child: Image.network(
-                                                            item['property_id']
-                                                                ['images'][0],
-                                                            fit: BoxFit.cover,
-                                                          )),
-                                                  onTap: () {
-                                                    setState(() {
-                                                      if (item['property_id']
-                                                                  ['images']
-                                                              .length !=
-                                                          0) {
-                                                        _zoomImage =
-                                                            item['property_id']
-                                                                ['images'][0];
-                                                        _displayDialog1(context,
-                                                            _zoomImage);
-                                                      }
-                                                    });
-                                                  },
-                                                )))),
+                                                child: item['property_id'] !=
+                                                        null
+                                                    ? InkWell(
+                                                        child: item['property_id']
+                                                                        [
+                                                                        'images']
+                                                                    .length ==
+                                                                0
+                                                            ? Center(
+                                                                child: Text(
+                                                                item['property_id']
+                                                                    ['name'][0],
+                                                                textScaleFactor:
+                                                                    1.0,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        28.0,
+                                                                    color: Color(
+                                                                        0xff314498),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontFamily:
+                                                                        "Roboto"),
+                                                              ))
+                                                            : ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                                child: Image
+                                                                    .network(
+                                                                  item['property_id']
+                                                                      [
+                                                                      'images'][0],
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            if (item['property_id']
+                                                                        [
+                                                                        'images']
+                                                                    .length !=
+                                                                0) {
+                                                              _zoomImage = item[
+                                                                      'property_id']
+                                                                  ['images'][0];
+                                                              _displayDialog1(
+                                                                  context,
+                                                                  _zoomImage);
+                                                            }
+                                                          });
+                                                        },
+                                                      )
+                                                    : new Container()))),
                                     Column(
                                       children: [
                                         Container(
@@ -1627,8 +1643,9 @@ class _HomePageState extends State<ListSchedulePage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 5),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -298,8 +299,8 @@ class _HomePageState extends State<ProductDetailsPage> {
       "allowSubscription": allowSubscription
     });
     // make POST request
-    final response =
-        await http.put(_businessUrl + "?id=" + widget.id, body: msg1, headers: {
+    final response = await http
+        .put(_businessUrl + "?id=" + widget.id['_id'], body: msg1, headers: {
       "Authorization": token,
       'Content-type': 'application/json',
       'Accept': 'application/json',
@@ -336,7 +337,7 @@ class _HomePageState extends State<ProductDetailsPage> {
     });
     // make POST request
     final response = await http.put(
-        _businessUrl + "/inventory" + "?id=" + widget.id,
+        _businessUrl + "/inventory" + "?id=" + widget.id['_id'],
         body: msg1,
         headers: {
           "Authorization": token,
@@ -372,7 +373,7 @@ class _HomePageState extends State<ProductDetailsPage> {
     });
     // make POST request
     final response = await http.put(
-        _businessUrl + "/pricing" + "?id=" + widget.id,
+        _businessUrl + "/pricing" + "?id=" + widget.id['_id'],
         body: msg1,
         headers: {
           "Authorization": token,
@@ -403,44 +404,32 @@ class _HomePageState extends State<ProductDetailsPage> {
     }
   }
 
-  //api calling for get Apt
-  Future<String> getBusiness() async {
-    var res = await http.get(Uri.encodeFull(_businessUrl + "?id=" + widget.id),
-        headers: {"Authorization": token});
-    var resBody = json.decode(res.body)['product'];
-    details = resBody;
-    setState(() {
-      productName.text = details[0]['product_name'];
-      brandName.text = details[0]['brand_name'];
-      features.text = details[0]['features'];
-      searchkeyword.text = details[0]['search_keyword'];
-      type.text = details[0]['product_type'];
-      allowSubscription = details[0]['allowSubscription'];
-      _s3URL = details[0]['main_image_url'];
-      image1 = details[0]['product_images'];
-      mrp.text = details[0]['pricing']['mrp'].toString();
-      sgst.text = details[0]['pricing']['sp'].toString();
-      cgst.text = details[0]['pricing']['gst'].toString();
-      _currentValue.text = details[0]['inventory']['quantity'].toString();
-      _minValue.text = details[0]['inventory']['min_order_qty'].toString();
-      _maxValue.text = details[0]['inventory']['max_order_qty'].toString();
-      unit = details[0]['inventory']['unit_type'];
-      stock = details[0]['inventory']['stock'];
-      bulk = details[0]['inventory']['bulk'];
-      showProgressloading = false;
-    });
-    discount = details[0]['pricing']['discount'];
-    return "Sucess";
-  }
-
   @override
   void initState() {
     super.initState();
+
     setState(() {
       token = "JWTV" + " " + Cache.storage.getString('authToken');
+      productName.text = widget.id['product_name'];
+      brandName.text = widget.id['brand_name'];
+      features.text = widget.id['features'];
+      searchkeyword.text = widget.id['search_keyword'];
+      type.text = widget.id['product_type'];
+      allowSubscription = widget.id['allowSubscription'];
+      _s3URL = widget.id['main_image_url'];
+      image1 = widget.id['product_images'];
+      mrp.text = widget.id['pricing']['mrp'].toString();
+      sgst.text = widget.id['pricing']['sp'].toString();
+      cgst.text = widget.id['pricing']['gst'].toString();
+      _currentValue.text = widget.id['inventory']['quantity'].toString();
+      _minValue.text = widget.id['inventory']['min_order_qty'].toString();
+      _maxValue.text = widget.id['inventory']['max_order_qty'].toString();
+      unit = widget.id['inventory']['unit_type'];
+      stock = widget.id['inventory']['stock'];
+      bulk = widget.id['inventory']['bulk'];
+      discount = widget.id['pricing']['discount'];
+      showProgressloading = false;
     });
-    this.getBusiness();
-    userRepository = UserRepository();
   }
 
   @override
@@ -451,10 +440,11 @@ class _HomePageState extends State<ProductDetailsPage> {
     ));
     return Scaffold(
       bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
+      appBar: CommonWidgets1.getAppBar(context),
       backgroundColor: Color(0xffF0F6FB),
       resizeToAvoidBottomInset: true,
       body: Container(
-        padding: const EdgeInsets.only(top: 60, left: 10),
+        padding: const EdgeInsets.only(top: 5, left: 10),
         height: MediaQuery.of(context).size.height,
         child: new SingleChildScrollView(
             scrollDirection: Axis.vertical,

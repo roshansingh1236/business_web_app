@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:bussiness_web_app/ui/pages/about/product.dart';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bussiness_web_app/config/cache.dart';
@@ -17,7 +18,6 @@ import 'package:bussiness_web_app/utils/common_util.dart';
 import 'package:bussiness_web_app/utils/navigation_util.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math' as Math;
-import 'package:csv/csv.dart';
 
 class ProductListPage extends StatefulWidget {
   @override
@@ -30,21 +30,16 @@ class _HomePageState extends State<ProductListPage> {
   UserRepository userRepository;
   String token = '';
   List productList = [];
-  List csvTable = [];
   bool showProgressloading = true;
   var myController = TextEditingController();
   String id = '';
   bool _stock = false;
-  Uint8List uploadedCsv;
-  String option1Text;
-
   //api calling for get Apt
   Future<String> getProductList() async {
     print(myController.text);
     var filter = myController.text != ""
         ? "?sortBy[isSetup]=1&filter[\$text][\$search]=" + myController.text
         : "?sortBy[isSetup]=1";
-    print(filter);
 
     var res = await http.get(Uri.encodeFull(_businessUrl + filter),
         headers: {"Authorization": token});
@@ -53,6 +48,12 @@ class _HomePageState extends State<ProductListPage> {
       case '200':
         {
           var resBody = json.decode(res.body)['product'];
+          resBody.sort((a, b) {
+            if (b['inventory']['stock']) {
+              return -1;
+            }
+            return 1;
+          });
           productList = resBody.toList();
           setState(() {
             showProgressloading = false;
@@ -157,43 +158,6 @@ class _HomePageState extends State<ProductListPage> {
     }
   }
 
-  pickFile() async {
-    InputElement uploadInput = FileUploadInputElement();
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) {
-      // read file content as dataURL
-      final files = uploadInput.files;
-      if (files.length == 1) {
-        final file = files[0];
-        FileReader reader = FileReader();
-
-        reader.onLoadEnd.listen((e) {
-          setState(() {
-            uploadedCsv = Base64Decoder()
-                .convert(reader.result.toString().split(",").last);
-
-            //  print(utf8.decode(uploadedCsv));
-          });
-          List<List<dynamic>> newList =
-              const CsvToListConverter().convert(utf8.decode(uploadedCsv));
-          // var xyz = csvTable.join();
-          csvTable = newList;
-
-          print(csvTable.join());
-        });
-
-        reader.onError.listen((fileEvent) {
-          setState(() {
-            option1Text = "Some Error occured while reading the file";
-          });
-        });
-
-        reader.readAsDataUrl(file);
-      }
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -213,8 +177,9 @@ class _HomePageState extends State<ProductListPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,
@@ -315,7 +280,6 @@ class _HomePageState extends State<ProductListPage> {
                                         padding: EdgeInsets.only(
                                             right: 30, left: 20, bottom: 10),
                                         child: Container(
-                                            height: 137,
                                             width: MediaQuery.of(context)
                                                 .size
                                                 .width,
@@ -350,8 +314,8 @@ class _HomePageState extends State<ProductListPage> {
                                                         MainAxisAlignment.start,
                                                     children: <Widget>[
                                                       new Container(
-                                                          height: 90,
-                                                          width: 90,
+                                                          height: 70,
+                                                          width: 70,
                                                           padding:
                                                               new EdgeInsets
                                                                   .all(2.0),
@@ -372,7 +336,7 @@ class _HomePageState extends State<ProductListPage> {
                                                           ),
                                                           child:
                                                               item["main_image_url"] !=
-                                                                      "No Image"
+                                                                      null
                                                                   ? ClipRRect(
                                                                       borderRadius:
                                                                           BorderRadius.circular(
@@ -382,156 +346,153 @@ class _HomePageState extends State<ProductListPage> {
                                                                         item[
                                                                             "main_image_url"],
                                                                         width:
-                                                                            87,
+                                                                            68,
                                                                         height:
-                                                                            87,
+                                                                            68,
                                                                         fit: BoxFit
                                                                             .cover,
                                                                       ),
                                                                     )
-                                                                  : Text(
-                                                                      item['product_name'] !=
-                                                                              null
-                                                                          ? item['product_name'][0]
-                                                                              .toUpperCase()
-                                                                          : "",
-                                                                      textScaleFactor:
-                                                                          1.0,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              58.0,
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontWeight: FontWeight
-                                                                              .w500,
-                                                                          fontFamily:
-                                                                              "Roboto"),
-                                                                    )),
-                                                      Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 30.0),
-                                                          child: new Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: <
-                                                                  Widget>[
-                                                                Text(
-                                                                  item[
-                                                                      'brand_name'],
-                                                                  textScaleFactor:
-                                                                      1.0,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          12.0,
-                                                                      color: Color(
-                                                                          0xffFFFFFF),
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      fontFamily:
-                                                                          "Roboto"),
-                                                                ),
-                                                                Text(
-                                                                  item[
-                                                                      'product_name'],
-                                                                  textScaleFactor:
-                                                                      1.0,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          23.0,
-                                                                      color: Color(
-                                                                          0xffFFFFFF),
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      fontFamily:
-                                                                          "Roboto"),
-                                                                ),
-                                                                Text(
-                                                                  "Price : \u20B9 ${item['pricing']['mrp']}",
-                                                                  textScaleFactor:
-                                                                      1.0,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          14.0,
-                                                                      color: Color(
-                                                                          0xffFFFFFF),
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      fontFamily:
-                                                                          "Roboto"),
-                                                                ),
-                                                                Text(
-                                                                  item['inventory']
-                                                                              [
-                                                                              'inventory']
-                                                                          .toString() +
-                                                                      " " +
-                                                                      item['inventory']
-                                                                          [
-                                                                          'unit_type'],
-                                                                  textScaleFactor:
-                                                                      1.0,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          14.0,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      fontFamily:
-                                                                          "Roboto"),
-                                                                ),
-                                                                Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceAround,
-                                                                    children: [
-                                                                      Text(
-                                                                        item['inventory']['stock'] ==
-                                                                                true
-                                                                            ? "In Stock"
-                                                                            : "Out of stock",
+                                                                  : Center(
+                                                                      child:
+                                                                          Text(
+                                                                        item['product_name'] !=
+                                                                                null
+                                                                            ? item['product_name'][0].toUpperCase()
+                                                                            : "",
                                                                         textScaleFactor:
                                                                             1.0,
                                                                         style: TextStyle(
                                                                             fontSize:
-                                                                                14.0,
-                                                                            color: item['inventory']['stock'] == true
-                                                                                ? Colors.green
-                                                                                : Colors.red,
+                                                                                48.0,
+                                                                            color:
+                                                                                Colors.black,
                                                                             fontWeight: FontWeight.w500,
                                                                             fontFamily: "Roboto"),
                                                                       ),
-                                                                      Padding(
-                                                                          padding:
-                                                                              EdgeInsets.only(left: item['inventory']['stock'] == true ? 30.0 : 10),
-                                                                          child: Switch(
-                                                                            value:
-                                                                                item['inventory']['stock'],
-                                                                            onChanged:
-                                                                                (value) {
-                                                                              setState(() {
-                                                                                _stock = value;
-                                                                                id = item["_id"];
-                                                                              });
+                                                                    )),
+                                                      Container(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            1.2,
+                                                        child: Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 30.0),
+                                                            child: new Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: <
+                                                                    Widget>[
+                                                                  Text(
+                                                                    item[
+                                                                        'brand_name'],
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12.0,
+                                                                        color: Color(
+                                                                            0xffFFFFFF),
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        fontFamily:
+                                                                            "Roboto"),
+                                                                  ),
+                                                                  Text(
+                                                                    item[
+                                                                        'product_name'],
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            23.0,
+                                                                        color: Color(
+                                                                            0xffFFFFFF),
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        fontFamily:
+                                                                            "Roboto"),
+                                                                  ),
+                                                                  Text(
+                                                                    "Price : \u20B9 ${item['pricing']['mrp']}",
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        color: Color(
+                                                                            0xffFFFFFF),
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        fontFamily:
+                                                                            "Roboto"),
+                                                                  ),
+                                                                  Text(
+                                                                    item['inventory']['inventory']
+                                                                            .toString() +
+                                                                        " " +
+                                                                        item['inventory']
+                                                                            [
+                                                                            'unit_type'],
+                                                                    textScaleFactor:
+                                                                        1.0,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14.0,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .w500,
+                                                                        fontFamily:
+                                                                            "Roboto"),
+                                                                  ),
+                                                                  Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                      children: [
+                                                                        Text(
+                                                                          item['inventory']['stock'] == true
+                                                                              ? "In Stock"
+                                                                              : "Out of stock",
+                                                                          textScaleFactor:
+                                                                              1.0,
+                                                                          style: TextStyle(
+                                                                              fontSize: 14.0,
+                                                                              color: item['inventory']['stock'] == true ? Colors.green : Colors.red,
+                                                                              fontWeight: FontWeight.w500,
+                                                                              fontFamily: "Roboto"),
+                                                                        ),
+                                                                        Padding(
+                                                                            padding:
+                                                                                EdgeInsets.only(left: item['inventory']['stock'] == true ? 30.0 : 0),
+                                                                            child: Switch(
+                                                                              value: item['inventory']['stock'],
+                                                                              onChanged: (value) {
+                                                                                setState(() {
+                                                                                  _stock = value;
+                                                                                  id = item["_id"];
+                                                                                });
 
-                                                                              _updateProductStockRequest(context);
-                                                                            },
-                                                                            activeColor:
-                                                                                Colors.green,
-                                                                            inactiveThumbColor:
-                                                                                Colors.red,
-                                                                          )),
-                                                                    ])
-                                                              ])),
+                                                                                _updateProductStockRequest(context);
+                                                                              },
+                                                                              activeColor: Colors.green,
+                                                                              inactiveThumbColor: Colors.red,
+                                                                            )),
+                                                                      ])
+                                                                ])),
+                                                      )
                                                     ])))),
                                     new Positioned(
                                         top: 10.0,
@@ -569,7 +530,7 @@ class _HomePageState extends State<ProductListPage> {
                                                         .pushToNewScreen(
                                                             context,
                                                             ProductDetailsPage(
-                                                              id: item["_id"],
+                                                              id: item,
                                                             ));
                                                   },
                                                   child: new Icon(
@@ -603,8 +564,6 @@ class _HomePageState extends State<ProductListPage> {
               padding: EdgeInsets.only(right: 20, top: 0),
               child: FloatingActionButton(
                 onPressed: () {
-                  // pickFile();
-
                   NavigationUtil.pushToNewScreen(context, ProductPage());
                 },
                 backgroundColor: Colors.red,

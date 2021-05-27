@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -52,6 +54,23 @@ class _HomePageState extends State<ProductPage> {
   List _configList = [];
   String name = '';
   Uint8List data;
+  List product = [];
+
+  //api calling for get Apt
+  Future<String> getGlobalProduct() async {
+    var res = await http.get(Uri.encodeFull(_businessUrl + "/template"),
+        headers: {"Authorization": "JWT" + " " + token});
+    var resBody = json.decode(res.body)['product_template'];
+    setState(() {
+      product = resBody;
+    });
+    product.sort((a, b) {
+      return a['product_name']
+          .toLowerCase()
+          .compareTo(b['product_name'].toLowerCase());
+    });
+    return "Sucess";
+  }
 
   Future<String> getUnitData() async {
     setState(() {
@@ -352,6 +371,7 @@ class _HomePageState extends State<ProductPage> {
     setState(() {
       token = "JWTV" + " " + Cache.storage.getString('authToken');
     });
+    getGlobalProduct();
   }
 
   @override
@@ -364,8 +384,9 @@ class _HomePageState extends State<ProductPage> {
       bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
       backgroundColor: Color(0xffF0F6FB),
       resizeToAvoidBottomInset: true,
+      appBar: CommonWidgets1.getAppBar(context),
       body: Container(
-        padding: const EdgeInsets.only(top: 60, left: 10),
+        padding: const EdgeInsets.only(top: 5, left: 10),
         height: MediaQuery.of(context).size.height,
         child: new SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -461,40 +482,96 @@ class _HomePageState extends State<ProductPage> {
                                                                 .center,
                                                         children: [
                                                           Padding(
-                                                              padding: EdgeInsets
-                                                                  .only(
-                                                                      left: 0.0,
-                                                                      right:
-                                                                          0.0,
-                                                                      top: 0.0),
-                                                              child:
-                                                                  TextFormField(
-                                                                controller:
-                                                                    productName,
-                                                                validator:
-                                                                    (input) {
-                                                                  if (input
-                                                                      .isEmpty) {
-                                                                    return 'Please enter Name';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  labelText:
-                                                                      'Product Name',
-                                                                  labelStyle: TextStyle(
-                                                                      fontSize:
-                                                                          12.0,
-                                                                      color: Color(
-                                                                          0xff314498),
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      fontFamily:
-                                                                          "Roboto"),
-                                                                ),
-                                                              )),
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 0.0,
+                                                                    right: 0.0,
+                                                                    top: 0.0),
+                                                            child:
+                                                                TypeAheadField(
+                                                              textFieldConfiguration: TextFieldConfiguration(
+                                                                  decoration: InputDecoration(
+                                                                      labelText:
+                                                                          "Product Name",
+                                                                      labelStyle: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Color(
+                                                                              0xff314498)),
+                                                                      disabledBorder:
+                                                                          OutlineInputBorder()),
+                                                                  controller: this
+                                                                      .productName),
+                                                              suggestionsCallback:
+                                                                  (pattern) async {
+                                                                return product;
+                                                              },
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      suggestion) {
+                                                                return ListTile(
+                                                                  title: Text(suggestion[
+                                                                          'product_name'] +
+                                                                      "(" +
+                                                                      suggestion[
+                                                                          'brand_name'] +
+                                                                      ")"),
+                                                                );
+                                                              },
+                                                              autoFlipDirection:
+                                                                  true,
+                                                              getImmediateSuggestions:
+                                                                  false,
+                                                              suggestionsBoxVerticalOffset:
+                                                                  4,
+                                                              hideOnEmpty:
+                                                                  false,
+                                                              hideOnError:
+                                                                  false,
+                                                              hideOnLoading:
+                                                                  false,
+                                                              onSuggestionSelected:
+                                                                  (suggestion) {
+                                                                this
+                                                                        .productName
+                                                                        .text =
+                                                                    suggestion[
+                                                                        'product_name'];
+                                                                this
+                                                                        .brandName
+                                                                        .text =
+                                                                    suggestion[
+                                                                        'brand_name'];
+                                                                this.type.text =
+                                                                    suggestion[
+                                                                        'product_type'];
+                                                                this
+                                                                        .features
+                                                                        .text =
+                                                                    suggestion[
+                                                                        'features'];
+                                                                this
+                                                                        .searchkeyword
+                                                                        .text =
+                                                                    suggestion[
+                                                                        'search_keyword'];
+                                                                this._s3URL =
+                                                                    suggestion[
+                                                                        'main_image_url'];
+                                                                this.mrp.text =
+                                                                    suggestion[
+                                                                            'mrp']
+                                                                        .toString();
+                                                                this
+                                                                    ._currentValue
+                                                                    .text = suggestion[
+                                                                        'quantity']
+                                                                    .toString();
+
+                                                                setState(() {});
+                                                              },
+                                                            ),
+                                                          ),
                                                           Padding(
                                                               padding: EdgeInsets
                                                                   .only(

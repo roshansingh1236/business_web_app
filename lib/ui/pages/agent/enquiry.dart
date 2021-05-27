@@ -1,16 +1,17 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/config/cache.dart';
+import 'package:bussiness_web_app/config/env.dart';
+import 'package:bussiness_web_app/ui/pages/agent/schedule.dart';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
+import 'package:bussiness_web_app/ui/widgets/common_widgets.dart';
+import 'package:bussiness_web_app/utils/animations/fade_animation.dart';
+import 'package:bussiness_web_app/utils/navigation_util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:bussiness_web_app/config/cache.dart';
 import 'package:flutter/services.dart';
-import 'package:bussiness_web_app/config/env.dart';
-import 'package:bussiness_web_app/ui/pages/agent/schedule.dart';
-import 'package:bussiness_web_app/ui/widgets/common_widgets.dart';
-import 'package:bussiness_web_app/utils/animations/fade_animation.dart';
-import 'package:bussiness_web_app/utils/navigation_util.dart';
 
 class EnquiryPage extends StatefulWidget {
   @override
@@ -78,8 +79,10 @@ class _HomePageState extends State<EnquiryPage> {
   }
 
   Future<String> getPropertyData() async {
-    var res = await http
-        .get(Uri.encodeFull(property1Url), headers: {"Authorization": token});
+    var res = await http.get(
+        Uri.encodeFull(
+            property1Url + "?filter[status]=open&filter[status]=confirmed"),
+        headers: {"Authorization": token});
     int statusCode = res.statusCode;
     switch (statusCode.toString()) {
       case '200':
@@ -246,8 +249,16 @@ class _HomePageState extends State<EnquiryPage> {
       setState(() {
         showProgressloading = false;
       });
-      // _displayCheckoutDialog(context);
-      _bottomSheetMore(context);
+      if (property.length != 0) {
+        _bottomSheetMore(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Please Select Property !",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red);
+      }
+
       //  NavigationUtil.pushToNewScreen(context, ListSchedulePage());
     } else {
       // If the server did not return a 201 CREATED response,
@@ -335,7 +346,7 @@ class _HomePageState extends State<EnquiryPage> {
         showProgressloading = false;
       });
       Navigator.of(context, rootNavigator: true).pop();
-      NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      NavigationUtil.clearAllAndAdd(context, ListSchedulePage());
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -1503,8 +1514,9 @@ class _HomePageState extends State<EnquiryPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -64,7 +65,6 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
   bool _show = false;
   String _property;
   String _type;
-  String _enquiry;
   final RegExp phoneRegex = new RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)');
   Future<String> getUnitTypeData() async {
     var res = await http.get(
@@ -81,8 +81,10 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
   }
 
   Future<String> getPropertyData() async {
-    var res = await http
-        .get(Uri.encodeFull(property1Url), headers: {"Authorization": token});
+    var res = await http.get(
+        Uri.encodeFull(
+            property1Url + "?filter[status]=open&filter[status]=confirmed"),
+        headers: {"Authorization": token});
     int statusCode = res.statusCode;
     switch (statusCode.toString()) {
       case '200':
@@ -229,9 +231,15 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
       setState(() {
         showProgressloading = false;
       });
-      // _displayCheckoutDialog(context);
-      _bottomSheetMore(context);
-      //  NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      if (property.length != 0) {
+        _bottomSheetMore(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Please Select Property !",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red);
+      }
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -318,7 +326,7 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
         showProgressloading = false;
       });
       Navigator.of(context, rootNavigator: true).pop();
-      NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      NavigationUtil.clearAllAndAdd(context, ListSchedulePage());
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -731,64 +739,73 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _enquiry = widget.enquiryObject['name'];
-      productName.text = widget.enquiryObject['name'];
-      phone.text = widget.enquiryObject['phone_no'];
-      email.text = widget.enquiryObject['email'];
-      _selectBussinessId = widget.enquiryObject['property_id'] != null
-          ? widget.enquiryObject['property_id'][0]['id']['businessId']
-          : null;
-      _selectProperty = widget.enquiryObject['property_id'] != null
-          ? widget.enquiryObject['property_id'][0]['id']['_id']
-          : null;
-      _property = widget.enquiryObject['property_id'] != null
-          ? widget.enquiryObject['property_id'][0]['id']['name']
-          : null;
-      if (widget.enquiryObject['preference'] != null) {
-        rentPrice.text = widget.enquiryObject['preference']
-                    ['rent_start_price'] !=
-                null
-            ? widget.enquiryObject['preference']['rent_start_price'].toString()
+    try {
+      setState(() {
+        productName.text = widget.enquiryObject['name'];
+        phone.text = widget.enquiryObject['phone_no'];
+        email.text = widget.enquiryObject['email'];
+        _selectBussinessId = widget.enquiryObject['property_id'] != null
+            ? widget.enquiryObject['property_id'][0]['id']['businessId']
             : null;
-        rentPrice1.text = widget.enquiryObject['preference']
-                    ['rent_end_price'] !=
-                null
-            ? widget.enquiryObject['preference']['rent_end_price'].toString()
+        _selectProperty = widget.enquiryObject['property_id'] != null
+            ? widget.enquiryObject['property_id'][0]['id']['_id']
             : null;
-        sellingPrice.text =
-            widget.enquiryObject['preference']['selling_start_price'] != null
-                ? widget.enquiryObject['preference']['selling_start_price']
-                    .toString()
-                : null;
-        sellingPrice1.text = widget.enquiryObject['preference']
-                    ['selling_end_price'] !=
-                null
-            ? widget.enquiryObject['preference']['selling_end_price'].toString()
+        _property = widget.enquiryObject['property_id'] != null
+            ? widget.enquiryObject['property_id'][0]['id']['name']
             : null;
-        sizeName.text = widget.enquiryObject['preference']['size'] != null
-            ? widget.enquiryObject['preference']['size'].toString()
-            : null;
-        _type = widget.enquiryObject['preference']['type'] != null
-            ? widget.enquiryObject['preference']['type']
-            : null;
-        noOfBathroom.text =
-            widget.enquiryObject['preference']['no_bathroom'] != null
-                ? widget.enquiryObject['preference']['no_bathroom'].toString()
-                : null;
-        _unitType = widget.enquiryObject['preference']['no_bedroom'] != null
-            ? widget.enquiryObject['preference']['no_bedroom'].toString()
-            : null;
-        address.text = widget.enquiryObject['preference']['address'] != null
-            ? widget.enquiryObject['preference']['address']
-            : null;
-      }
-      _date = widget.enquiryObject['type'];
-      _enquiryId = widget.enquiryObject['_id'];
-      _show = true;
-      token = "JWTV" + " " + Cache.storage.getString('authToken');
-      countryCode = Cache.storage.getString('countryCode');
-    });
+        if (widget.enquiryObject['preference'] != null) {
+          rentPrice.text =
+              widget.enquiryObject['preference']['rent_start_price'] != null
+                  ? widget.enquiryObject['preference']['rent_start_price']
+                      .toString()
+                  : null;
+          rentPrice1.text = widget.enquiryObject['preference']
+                      ['rent_end_price'] !=
+                  null
+              ? widget.enquiryObject['preference']['rent_end_price'].toString()
+              : null;
+          sellingPrice.text =
+              widget.enquiryObject['preference']['selling_start_price'] != null
+                  ? widget.enquiryObject['preference']['selling_start_price']
+                      .toString()
+                  : null;
+          sellingPrice1.text =
+              widget.enquiryObject['preference']['selling_end_price'] != null
+                  ? widget.enquiryObject['preference']['selling_end_price']
+                      .toString()
+                  : null;
+          sizeName.text = widget.enquiryObject['preference']['size'] != null
+              ? widget.enquiryObject['preference']['size'].toString()
+              : null;
+          _type = widget.enquiryObject['preference']['type'] != null
+              ? widget.enquiryObject['preference']['type']
+              : null;
+          noOfBathroom.text =
+              widget.enquiryObject['preference']['no_bathroom'] != null
+                  ? widget.enquiryObject['preference']['no_bathroom'].toString()
+                  : null;
+          _unitType = widget.enquiryObject['preference']['no_bedroom'] != null
+              ? widget.enquiryObject['preference']['no_bedroom'].toString()
+              : null;
+          address.text = widget.enquiryObject['preference']['address'] != null
+              ? widget.enquiryObject['preference']['address']
+              : null;
+        }
+        _date = widget.enquiryObject['type'];
+        _enquiryId = widget.enquiryObject['_id'];
+        _show = true;
+        token = "JWTV" + " " + Cache.storage.getString('authToken');
+        countryCode = Cache.storage.getString('countryCode');
+      });
+    } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      Fluttertoast.showToast(
+          msg: "there is somthing error please contact to admin",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red);
+    }
+
     this.getConfigData();
     this.getUnitTypeData();
     this.getPropertyData();
@@ -1534,8 +1551,9 @@ class _HomePageState extends State<ExistingUpdateEnquiryPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

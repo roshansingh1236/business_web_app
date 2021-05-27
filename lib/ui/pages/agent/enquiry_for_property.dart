@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -183,9 +184,15 @@ class _HomePageState extends State<EnquiryForPropertyPage> {
       setState(() {
         showProgressloading = false;
       });
-      // _displayCheckoutDialog(context);
-      _bottomSheetMore(context);
-      //  NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      if (property.length != 0) {
+        _bottomSheetMore(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Please Select Property !",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red);
+      }
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -272,7 +279,7 @@ class _HomePageState extends State<EnquiryForPropertyPage> {
         showProgressloading = false;
       });
       Navigator.of(context, rootNavigator: true).pop();
-      NavigationUtil.pushToNewScreen(context, ListSchedulePage());
+      NavigationUtil.clearAllAndAdd(context, ListSchedulePage());
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -1208,8 +1215,9 @@ class _HomePageState extends State<EnquiryForPropertyPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

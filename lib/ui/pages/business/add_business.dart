@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:bussiness_web_app/ui/pages/business/add_global_product.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -82,8 +83,10 @@ class _HomePageState extends State<BusinessPage> {
   }
 
   Future<String> getConfigData() async {
-    var res = await http.get(
-        Uri.encodeFull(configUrl + "?filter[key]=BUSINESS_TYPE"),
+    var type = country != "India"
+        ? "?filter[key]=PROPERTY_TYPE"
+        : "?filter[key]=BUSINESS_TYPE";
+    var res = await http.get(Uri.encodeFull(configUrl + type),
         headers: {"Authorization": token});
     var resBody = json.decode(res.body)['globalConfigs'];
     // loop through the json object
@@ -107,6 +110,9 @@ class _HomePageState extends State<BusinessPage> {
 
   _addBusinessRequest(BuildContext context) async {
     // set up POST request arguments
+    setState(() {
+      showProgressloading = true;
+    });
     final msg1 = country != "India"
         ? jsonEncode({
             "gstNumber": gst.text,
@@ -146,6 +152,9 @@ class _HomePageState extends State<BusinessPage> {
     if (statusCode == 200) {
       // If the server did return a 201 CREATED response,
       // then parse the JSON.
+      setState(() {
+        showProgressloading = false;
+      });
       if (json.decode(response.body)['vendorRole'] != null) {
         Cache.storage
             .setString('vendorRole', json.decode(response.body)['vendorRole']);
@@ -156,11 +165,17 @@ class _HomePageState extends State<BusinessPage> {
           ? DeliveryHomePage()
           : json.decode(response.body)['vendorRole'] == "Real Estate Agent"
               ? NavigationUtil.pushToNewScreen(context, AgentHomePage())
-              : HomePage();
+              : NavigationUtil.pushToNewScreen(context, NewProductPage());
     } else if (statusCode == 201) {
+      setState(() {
+        showProgressloading = false;
+      });
       Cache.storage.setInt('isProfileCompleted', 1);
-      NavigationUtil.pushToNewScreen(context, HomePage());
+      NavigationUtil.pushToNewScreen(context, NewProductPage());
     } else {
+      setState(() {
+        showProgressloading = false;
+      });
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
       var error = json.decode(response.body);
@@ -901,79 +916,93 @@ class _HomePageState extends State<BusinessPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                         ),
-                                        FittedBox(
-                                          child: Container(
-                                            width: (MediaQuery.of(context)
-                                                    .size
-                                                    .width) /
-                                                1.17,
-                                            child: new Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 10.0,
-                                                        top: 10.0,
-                                                        left: 10,
-                                                        bottom: 20),
-                                                    child: new DropdownButton(
-                                                      isDense: true,
-                                                      iconSize: 30.0,
-                                                      hint: new Text(
-                                                          "Select Apartment",
-                                                          textAlign:
-                                                              TextAlign.center),
-                                                      items: org.map((item) {
-                                                        return new DropdownMenuItem(
-                                                          child: new Text(
-                                                              item['name']),
-                                                          value: item['_id'],
-                                                        );
-                                                      }).toList(),
-                                                      onChanged: (newVal) {
-                                                        FocusScope.of(context)
-                                                            .unfocus();
-                                                        setState(() {
-                                                          _mySelection2 =
-                                                              newVal;
-                                                        });
-                                                      },
-                                                      value: _mySelection2,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: 2.0),
-                                                      child: IconButton(
-                                                        icon: Icon(
-                                                            Icons.add_circle),
-                                                        onPressed: () {
-                                                          if (_mySelection2 !=
-                                                              null) {
-                                                            this.getSingleOrgData();
-                                                            setState(() {
-                                                              _mySelection2 =
-                                                                  null;
-                                                            });
-                                                          } else {
-                                                            Fluttertoast.showToast(
-                                                                msg:
-                                                                    "select apartment first",
-                                                                toastLength: Toast
-                                                                    .LENGTH_SHORT,
-                                                                gravity:
-                                                                    ToastGravity
-                                                                        .CENTER);
-                                                          }
-                                                        },
-                                                      )),
-                                                ]),
-                                          ),
-                                        ),
+                                        country == "India"
+                                            ? new Container()
+                                            : FittedBox(
+                                                child: Container(
+                                                  width: (MediaQuery.of(context)
+                                                          .size
+                                                          .width) /
+                                                      1.17,
+                                                  child: new Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: <Widget>[
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  right: 10.0,
+                                                                  top: 10.0,
+                                                                  left: 10,
+                                                                  bottom: 20),
+                                                          child:
+                                                              new DropdownButton(
+                                                            isDense: true,
+                                                            iconSize: 30.0,
+                                                            hint: new Text(
+                                                                "Select Apartment",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center),
+                                                            items:
+                                                                org.map((item) {
+                                                              return new DropdownMenuItem(
+                                                                child: new Text(
+                                                                    item[
+                                                                        'name']),
+                                                                value:
+                                                                    item['_id'],
+                                                              );
+                                                            }).toList(),
+                                                            onChanged:
+                                                                (newVal) {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .unfocus();
+                                                              setState(() {
+                                                                _mySelection2 =
+                                                                    newVal;
+                                                              });
+                                                            },
+                                                            value:
+                                                                _mySelection2,
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 2.0),
+                                                            child: IconButton(
+                                                              icon: Icon(Icons
+                                                                  .add_circle),
+                                                              onPressed: () {
+                                                                if (_mySelection2 !=
+                                                                    null) {
+                                                                  this.getSingleOrgData();
+                                                                  setState(() {
+                                                                    _mySelection2 =
+                                                                        null;
+                                                                  });
+                                                                } else {
+                                                                  Fluttertoast.showToast(
+                                                                      msg:
+                                                                          "select apartment first",
+                                                                      toastLength:
+                                                                          Toast
+                                                                              .LENGTH_SHORT,
+                                                                      gravity:
+                                                                          ToastGravity
+                                                                              .CENTER);
+                                                                }
+                                                              },
+                                                            )),
+                                                      ]),
+                                                ),
+                                              ),
                                       ]))))
                     ])),
                     _showContainer == true
@@ -1062,8 +1091,10 @@ class _HomePageState extends State<BusinessPage> {
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Text('Save',
-                                          style: TextStyle(fontSize: 20)),
+                                      showProgressloading == true
+                                          ? CircularProgressIndicator()
+                                          : const Text('Save',
+                                              style: TextStyle(fontSize: 20)),
                                     ]),
                               ),
                             ),

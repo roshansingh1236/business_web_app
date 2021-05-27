@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bussiness_web_app/config/cache.dart';
@@ -169,30 +170,32 @@ class _HomePageState extends State<PropertyListPage> {
     return "Sucess";
   }
 
-  _addPropertyRequest(BuildContext context) async {
+  _addPropertyRequest(BuildContext context, String status) async {
     // set up POST request arguments
-    final msg1 = jsonEncode({"status": _status});
 
+    final msg1 = jsonEncode({"status": _status});
+    var url = status == "property" ? _businessUrl : _businessUrl + "/enquiry";
     // make POST request
-    final response = await http
-        .put(_businessUrl + "/enquiry" + "?id=" + _id, body: msg1, headers: {
+    print(_id);
+    final response = await http.put(url + "?id=" + _id, body: msg1, headers: {
       "Authorization": token,
       'Content-type': 'application/json',
       'Accept': 'application/json',
     });
     // check the status code for the result
     int statusCode = response.statusCode;
+    print(response.body);
     if (statusCode == 200) {
       // If the server did return a 201 CREATED response,
       // then parse the JSON.
-      getEnquiryList();
+      status == "property" ? getProductList() : getEnquiryList();
       Fluttertoast.showToast(
           msg: "Status Updated",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           backgroundColor: Colors.red);
     } else if (statusCode == 201) {
-      getEnquiryList();
+      status == "property" ? getProductList() : getEnquiryList();
       Fluttertoast.showToast(
           msg: "Status Updated",
           toastLength: Toast.LENGTH_SHORT,
@@ -342,7 +345,7 @@ class _HomePageState extends State<PropertyListPage> {
                                         ),
                                         title: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                MainAxisAlignment.start,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
@@ -518,7 +521,7 @@ class _HomePageState extends State<PropertyListPage> {
                                                                                           color: Colors.white,
                                                                                           width: 2,
                                                                                         )),
-                                                                                    child: item1['id']['images'].length != 0
+                                                                                    child: item1['id'] != null && item1['id']['images'].length != 0
                                                                                         ? InkWell(
                                                                                             child: ClipRRect(
                                                                                                 borderRadius: BorderRadius.circular(8.0),
@@ -544,14 +547,16 @@ class _HomePageState extends State<PropertyListPage> {
                                                                                               ),
                                                                                             ),
                                                                                             onTap: () {
-                                                                                              NavigationUtil.pushToNewScreen(
-                                                                                                  context,
-                                                                                                  PropertyDetailsPage(
-                                                                                                    id: item1['id'],
-                                                                                                  ));
+                                                                                              item1['id'] != null
+                                                                                                  ? NavigationUtil.pushToNewScreen(
+                                                                                                      context,
+                                                                                                      PropertyDetailsPage(
+                                                                                                        id: item1['id'],
+                                                                                                      ))
+                                                                                                  : print("error");
                                                                                             },
                                                                                           )),
-                                                                                Container(child: Text(item1['id']['name'], style: TextStyle(fontSize: 12, color: Colors.white)))
+                                                                                Container(child: Text(item1['id'] != null ? item1['id']['name'] : "", style: TextStyle(fontSize: 12, color: Colors.white)))
                                                                               ],
                                                                             )),
                                                                     ],
@@ -626,6 +631,7 @@ class _HomePageState extends State<PropertyListPage> {
                                                                                     'open',
                                                                                     'confirmed',
                                                                                     'rented',
+                                                                                    'sold',
                                                                                     'closed'
                                                                                   ].map(
                                                                                     (val) {
@@ -645,7 +651,7 @@ class _HomePageState extends State<PropertyListPage> {
                                                                                         _id = item["_id"];
                                                                                       },
                                                                                     );
-                                                                                    _addPropertyRequest(context);
+                                                                                    _addPropertyRequest(context, "enquiry");
                                                                                   },
                                                                                 ))),
                                                                         item['status'] ==
@@ -818,7 +824,7 @@ class _HomePageState extends State<PropertyListPage> {
                                                                 .center,
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .spaceAround,
+                                                                .center,
                                                         children: [
                                                           new Tooltip(
                                                             message: "Details",
@@ -840,7 +846,7 @@ class _HomePageState extends State<PropertyListPage> {
                                                                 .center,
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .spaceAround,
+                                                                .center,
                                                         children: [
                                                           new Tooltip(
                                                               message:
@@ -891,7 +897,7 @@ class _HomePageState extends State<PropertyListPage> {
                                               ),
                                         title: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                MainAxisAlignment.start,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
@@ -1048,8 +1054,8 @@ class _HomePageState extends State<PropertyListPage> {
                                                                   children: [
                                                                     Container(
                                                                         child: new Text(
-                                                                            item[
-                                                                                'unit_type'],
+                                                                            item['no_bedroom']
+                                                                                .toString(),
                                                                             style:
                                                                                 TextStyle(fontSize: 10, color: Colors.white))),
                                                                     Container(
@@ -1138,18 +1144,132 @@ class _HomePageState extends State<PropertyListPage> {
                                                           left: 20,
                                                           top: 10,
                                                           bottom: 10),
-                                                      child: Container(
-                                                          child: new Text(
-                                                              "Status: " +
-                                                                  item[
-                                                                      'status'],
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)))),
+                                                      child: Row(children: [
+                                                        Text(
+                                                          'Status: ',
+                                                          style: TextStyle(
+                                                              fontSize: 13,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        showStatus == false
+                                                            ? Text(
+                                                                item['status'],
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: item['status'] ==
+                                                                            'open'
+                                                                        ? Colors
+                                                                            .green
+                                                                        : Colors
+                                                                            .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              )
+                                                            : SizedBox(
+                                                                width: 80,
+                                                                child:
+                                                                    DropdownButtonHideUnderline(
+                                                                        child:
+                                                                            DropdownButton(
+                                                                  isExpanded:
+                                                                      false,
+                                                                  icon: Icon(
+                                                                    // Add this
+                                                                    Icons
+                                                                        .arrow_drop_down_circle, // Add this
+                                                                    color: Color(
+                                                                        0xffD3D9EA), // Add this
+                                                                  ),
+                                                                  iconSize:
+                                                                      15.0,
+                                                                  hint: _status ==
+                                                                          null
+                                                                      ? Text(
+                                                                          'Change',
+                                                                          textScaleFactor:
+                                                                              1.0,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        )
+                                                                      : Text(
+                                                                          _status,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .blue),
+                                                                  items: [
+                                                                    'open',
+                                                                    'confirmed',
+                                                                    _date ==
+                                                                            "rent"
+                                                                        ? 'rented'
+                                                                        : 'sold',
+                                                                    'closed'
+                                                                  ].map(
+                                                                    (val) {
+                                                                      return DropdownMenuItem<
+                                                                          String>(
+                                                                        value:
+                                                                            val,
+                                                                        child:
+                                                                            Text(
+                                                                          val,
+                                                                          textScaleFactor:
+                                                                              1.0,
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ).toList(),
+                                                                  onChanged:
+                                                                      (val) {
+                                                                    setState(
+                                                                      () {
+                                                                        _status =
+                                                                            val;
+                                                                        _id = item[
+                                                                            '_id'];
+                                                                      },
+                                                                    );
+                                                                    _addPropertyRequest(
+                                                                        context,
+                                                                        "property");
+                                                                  },
+                                                                ))),
+                                                        item['status'] ==
+                                                                "closed"
+                                                            ? new Container()
+                                                            : IconButton(
+                                                                icon: Icon(
+                                                                  Icons.edit,
+                                                                ),
+                                                                iconSize: 20,
+                                                                color: Colors
+                                                                    .white,
+                                                                splashColor:
+                                                                    Colors
+                                                                        .purple,
+                                                                onPressed: () {
+                                                                  setState(() {
+                                                                    showStatus =
+                                                                        !showStatus;
+                                                                  });
+                                                                },
+                                                              ),
+                                                      ])),
                                                 ]),
                                           ),
                                         ],

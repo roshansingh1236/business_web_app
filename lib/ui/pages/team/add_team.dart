@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 // ignore: avoid_web_libraries_in_flutter
@@ -330,9 +331,10 @@ class _HomePageState extends State<TeamPage> {
     return Scaffold(
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
+        appBar: CommonWidgets1.getAppBar(context),
         body: SingleChildScrollView(
             child: Container(
-          padding: const EdgeInsets.only(top: 60, left: 0),
+          padding: const EdgeInsets.only(top: 5, left: 0),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:bussiness_web_app/config/cache.dart';
@@ -523,17 +524,23 @@ class _HomePageState extends State<ListEnquiryPage> {
                                                                         ),
                                                                         onTap:
                                                                             () {
-                                                                          NavigationUtil.pushToNewScreen(
-                                                                              context,
-                                                                              PropertyDetailsPage(
-                                                                                id: item['id'],
-                                                                              ));
+                                                                          item['property_id'] != null
+                                                                              ? NavigationUtil.pushToNewScreen(
+                                                                                  context,
+                                                                                  PropertyDetailsPage(
+                                                                                    id: item['id'],
+                                                                                  ))
+                                                                              : print("error");
                                                                         },
                                                                       )),
                                                             Container(
                                                                 child: Text(
-                                                                    item['id'][
-                                                                        'name'],
+                                                                    item['property_id'] !=
+                                                                            null
+                                                                        ? item['id']
+                                                                            [
+                                                                            'name']
+                                                                        : "",
                                                                     style: TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -642,6 +649,7 @@ class _HomePageState extends State<ListEnquiryPage> {
                                                                       'open',
                                                                       'confirmed',
                                                                       'rented',
+                                                                      'sold',
                                                                       'closed'
                                                                     ].map(
                                                                       (val) {
@@ -881,8 +889,9 @@ class _HomePageState extends State<ListEnquiryPage> {
       bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
       backgroundColor: Color(0xffF0F6FB),
       resizeToAvoidBottomInset: false,
+      appBar: CommonWidgets1.getAppBar(context),
       body: Container(
-        padding: const EdgeInsets.only(top: 60, left: 5),
+        padding: const EdgeInsets.only(top: 5, left: 10),
         height: MediaQuery.of(context).size.height,
         child: new SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -915,7 +924,7 @@ class _HomePageState extends State<ListEnquiryPage> {
                           )),
                     ]),
                 Padding(
-                    padding: EdgeInsets.only(right: 10, left: 10, bottom: 10),
+                    padding: EdgeInsets.only(right: 10, left: 10, bottom: 20),
                     child: Container(
                         height: MediaQuery.of(context).size.height / 1.31,
                         width: MediaQuery.of(context).size.width,

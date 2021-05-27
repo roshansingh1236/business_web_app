@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -398,10 +399,11 @@ class _HomePageState extends State<PropertyDetailsPage> {
   Future<String> getS3DataForProductImage(int number) async {
     var res = await http.get(
         Uri.encodeFull(_s3Url1 +
-            "?_organisationId=5d147d1dfb6fc00e79b12fdc&folder=Property" +
-            "&fileName=$_fileName&fileType=image/jpeg"),
+            "?_organisationId=5d147d1dfb6fc00e79b12fdc&folder=property" +
+            "&fileName=$_fileName&fileType=image/jpeg/png/jpg"),
         headers: {"Authorization": token});
     var url = json.decode(res.body)["url"];
+
     var uri = Uri.parse(json.decode(res.body)["signedRequest"]);
     // ignore: unused_local_variable
     var response = await http.put(
@@ -410,7 +412,7 @@ class _HomePageState extends State<PropertyDetailsPage> {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Access-Control-Allow-Origin': 'true',
       },
-      body: await _pickedImage.readAsBytes(),
+      body: data,
     );
     if (number == 1) {
       setState(() {
@@ -427,7 +429,7 @@ class _HomePageState extends State<PropertyDetailsPage> {
         showProgressloading = false;
       });
     }
-
+    print(url);
     return "Sucess";
   }
 
@@ -728,7 +730,7 @@ class _HomePageState extends State<PropertyDetailsPage> {
               width: 150,
               child: Padding(
                 padding: EdgeInsets.only(
-                    left: 20.0, top: _unitType == null ? 10 : 0),
+                    left: 10.0, top: _unitType == null ? 10 : 10),
                 child: DropdownButton(
                   isExpanded: true,
                   iconEnabledColor: Colors.black,
@@ -786,12 +788,12 @@ class _HomePageState extends State<PropertyDetailsPage> {
         ],
       ),
       Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-              width: 310,
+              width: 320,
               child: Padding(
-                  padding: EdgeInsets.only(top: 0.0),
+                  padding: EdgeInsets.only(left: 20.0),
                   child: TextFormField(
                     enabled: !readOnlyShow,
                     controller: noOfBathroom,
@@ -2215,8 +2217,9 @@ class _HomePageState extends State<PropertyDetailsPage> {
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: true,
+        appBar: CommonWidgets1.getAppBar(context),
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

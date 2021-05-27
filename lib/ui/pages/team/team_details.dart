@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -67,13 +68,11 @@ class _HomePageState extends State<TeamDetailsPage> {
     ));
     return Scaffold(
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
-        drawer: BlocProvider<UserBloc>(
-          create: (context) => UserBloc(userRepository: userRepository),
-        ),
+        appBar: CommonWidgets1.getAppBar(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 0),
+          padding: const EdgeInsets.only(top: 5, left: 0),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

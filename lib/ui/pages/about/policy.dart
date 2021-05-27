@@ -1,3 +1,4 @@
+import 'package:bussiness_web_app/ui/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:bussiness_web_app/data/repositories/user_repository.dart';
 import 'package:flutter/services.dart';
@@ -24,10 +25,11 @@ class _HomePageState extends State<PolicyPage> {
     ));
     return Scaffold(
         bottomNavigationBar: CommonWidgets.getAppBottomTab(context),
+        appBar: CommonWidgets1.getAppBar(context),
         backgroundColor: Color(0xffF0F6FB),
         resizeToAvoidBottomInset: false,
         body: Container(
-          padding: const EdgeInsets.only(top: 60, left: 10),
+          padding: const EdgeInsets.only(top: 5, left: 10),
           height: MediaQuery.of(context).size.height,
           child: new SingleChildScrollView(
               scrollDirection: Axis.vertical,

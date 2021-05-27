@@ -563,34 +563,14 @@ class _LoginFormState extends State<LoginForm> {
                                             ),
                                     )),
                                   )), */
-                                    Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 0, top: 10),
-                                        child: Container(
-                                          height: 40,
-                                          width: 207.0,
-                                          decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: <Color>[
-                                                  Color(0xFF2E879A),
-                                                  Color(0xFF314498),
-                                                ],
-                                              ),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10.0))),
-                                          child: RaisedButton(
-                                            elevation: 0,
-                                            onPressed:
-                                                state is! LoginLoadingState
-                                                    ? _onLoginButtonPressed
-                                                    : null,
-                                            textColor: Colors.white,
-                                            padding: const EdgeInsets.all(0.0),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        80.0)),
+                                    showDiv == false
+                                        ? new Container()
+                                        : Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 0, top: 10),
                                             child: Container(
+                                              height: 40,
+                                              width: 207.0,
                                               decoration: const BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: <Color>[
@@ -602,25 +582,55 @@ class _LoginFormState extends State<LoginForm> {
                                                       BorderRadius.all(
                                                           Radius.circular(
                                                               10.0))),
-                                              child: state is LoginLoadingState
-                                                  ? CircularProgressIndicator()
-                                                  : Center(
-                                                      child: Text(
-                                                        "LOG IN",
-                                                        textScaleFactor: 1.0,
-                                                        style: TextStyle(
-                                                            fontSize: 15.0,
-                                                            fontFamily:
-                                                                "Roboto",
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal),
-                                                      ),
-                                                    ),
-                                            ),
-                                          ),
-                                        )),
+                                              child: RaisedButton(
+                                                elevation: 0,
+                                                onPressed:
+                                                    state is! LoginLoadingState
+                                                        ? _onLoginButtonPressed
+                                                        : null,
+                                                textColor: Colors.white,
+                                                padding:
+                                                    const EdgeInsets.all(0.0),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            80.0)),
+                                                child: Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                          gradient:
+                                                              LinearGradient(
+                                                            colors: <Color>[
+                                                              Color(0xFF2E879A),
+                                                              Color(0xFF314498),
+                                                            ],
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0))),
+                                                  child: state
+                                                          is LoginLoadingState
+                                                      ? CircularProgressIndicator()
+                                                      : Center(
+                                                          child: Text(
+                                                            "LOG IN",
+                                                            textScaleFactor:
+                                                                1.0,
+                                                            style: TextStyle(
+                                                                fontSize: 15.0,
+                                                                fontFamily:
+                                                                    "Roboto",
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal),
+                                                          ),
+                                                        ),
+                                                ),
+                                              ),
+                                            )),
                                     SizedBox(
                                       height: 50,
                                     ),

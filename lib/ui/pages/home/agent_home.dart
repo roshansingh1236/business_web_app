@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bussiness_web_app/ui/pages/property/list_property.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,7 @@ class _HomePageState extends State<AgentHomePage> {
   //api calling for get Apt
 
   _launchCaller() async {
-    var phone = "tel:" + _phone;
+    var phone = "tel:" + "+" + _phone;
     var url = phone;
     if (await canLaunch(url)) {
       await launch(url);
@@ -237,51 +238,62 @@ class _HomePageState extends State<AgentHomePage> {
                                                       color: Colors.white,
                                                       width: 2,
                                                     )),
-                                                child: InkWell(
-                                                  child: item['property_id']
-                                                                  ['images']
-                                                              .length ==
-                                                          0
-                                                      ? Center(
-                                                          child: Text(
-                                                          item['property_id']
-                                                              ['name'][0],
-                                                          textScaleFactor: 1.0,
-                                                          style: TextStyle(
-                                                              fontSize: 28.0,
-                                                              color: Color(
-                                                                  0xff314498),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontFamily:
-                                                                  "Roboto"),
-                                                        ))
-                                                      : ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10.0),
-                                                          child: Image.network(
-                                                            item['property_id']
-                                                                ['images'][0],
-                                                            fit: BoxFit.cover,
-                                                          )),
-                                                  onTap: () {
-                                                    setState(() {
-                                                      if (item['property_id']
-                                                                  ['images']
-                                                              .length !=
-                                                          0) {
-                                                        _zoomImage =
-                                                            item['property_id']
-                                                                ['images'][0];
-                                                        _displayDialog1(context,
-                                                            _zoomImage);
-                                                      }
-                                                    });
-                                                  },
-                                                )))),
+                                                child: item['property_id'] !=
+                                                        null
+                                                    ? InkWell(
+                                                        child: item['property_id']
+                                                                        [
+                                                                        'images']
+                                                                    .length ==
+                                                                0
+                                                            ? Center(
+                                                                child: Text(
+                                                                item['property_id']
+                                                                    ['name'][0],
+                                                                textScaleFactor:
+                                                                    1.0,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        28.0,
+                                                                    color: Color(
+                                                                        0xff314498),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontFamily:
+                                                                        "Roboto"),
+                                                              ))
+                                                            : ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                                child: Image
+                                                                    .network(
+                                                                  item['property_id']
+                                                                      [
+                                                                      'images'][0],
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )),
+                                                        onTap: () {
+                                                          setState(() {
+                                                            if (item['property_id']
+                                                                        [
+                                                                        'images']
+                                                                    .length !=
+                                                                0) {
+                                                              _zoomImage = item[
+                                                                      'property_id']
+                                                                  ['images'][0];
+                                                              _displayDialog1(
+                                                                  context,
+                                                                  _zoomImage);
+                                                            }
+                                                          });
+                                                        },
+                                                      )
+                                                    : new Container()))),
                                     Column(
                                       children: [
                                         Container(
@@ -534,6 +546,7 @@ class _HomePageState extends State<AgentHomePage> {
   @override
   void initState() {
     super.initState();
+
     setState(() {
       token = "JWT" + " " + Cache.storage.getString('authToken');
     });
@@ -642,156 +655,169 @@ class _HomePageState extends State<AgentHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Container(
-                            width: 145,
-                            height: 75,
-                            decoration: BoxDecoration(
-                              color: Color(0xffeaeaea),
-                              border: Border.all(
-                                color: Color(0xff888888),
-                                style: BorderStyle.solid,
-                                width: 1.0,
+                        InkWell(
+                          onTap: () {
+                            NavigationUtil.pushToNewScreen(
+                                context, PropertyListPage());
+                          },
+                          child: Container(
+                              width: 145,
+                              height: 75,
+                              decoration: BoxDecoration(
+                                color: Color(0xffeaeaea),
+                                border: Border.all(
+                                  color: Color(0xff888888),
+                                  style: BorderStyle.solid,
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.only(left: 10.0),
-                                    child: Text(
-                                      "Properties",
-                                      textScaleFactor: 1.0,
-                                      style: TextStyle(
-                                          fontSize: 14.0,
-                                          color: Color(0xff2E459A),
-                                          fontWeight: FontWeight.normal,
-                                          fontFamily: "Roboto"),
-                                    )),
-                                Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Padding(
+                                      padding: EdgeInsets.only(left: 10.0),
+                                      child: Text(
+                                        "Properties",
+                                        textScaleFactor: 1.0,
+                                        style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Color(0xff2E459A),
+                                            fontWeight: FontWeight.normal,
+                                            fontFamily: "Roboto"),
+                                      )),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      new Image.asset(
+                                        'assets/images/Vector.png',
+                                        width: 20.0,
+                                        height: 29.0,
+                                      ),
+                                      Text(
+                                        "$_property",
+                                        textScaleFactor: 1.0,
+                                        style: TextStyle(
+                                            fontSize: 30.0,
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.normal,
+                                            fontFamily: "Roboto"),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              )),
+                        ),
+                        InkWell(
+                            onTap: () {
+                              NavigationUtil.pushToNewScreen(
+                                  context, ListSchedulePage());
+                            },
+                            child: Container(
+                                width: 193,
+                                height: 75,
+                                decoration: BoxDecoration(
+                                  color: Color(0xffeaeaea),
+                                  border: Border.all(
+                                    color: Color(0xff888888),
+                                    style: BorderStyle.solid,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    new Image.asset(
-                                      'assets/images/Vector.png',
-                                      width: 20.0,
-                                      height: 29.0,
-                                    ),
-                                    Text(
-                                      "$_property",
-                                      textScaleFactor: 1.0,
-                                      style: TextStyle(
-                                          fontSize: 30.0,
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.normal,
-                                          fontFamily: "Roboto"),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            )),
-                        Container(
-                            width: 193,
-                            height: 75,
-                            decoration: BoxDecoration(
-                              color: Color(0xffeaeaea),
-                              border: Border.all(
-                                color: Color(0xff888888),
-                                style: BorderStyle.solid,
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.only(left: 10.0),
-                                    child: Text(
-                                      "Leads",
-                                      textScaleFactor: 1.0,
-                                      style: TextStyle(
-                                          fontSize: 14.0,
-                                          color: Color(0xff2E459A),
-                                          fontWeight: FontWeight.normal,
-                                          fontFamily: "Roboto"),
-                                    )),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Column(
+                                    Padding(
+                                        padding: EdgeInsets.only(left: 10.0),
+                                        child: Text(
+                                          "Leads",
+                                          textScaleFactor: 1.0,
+                                          style: TextStyle(
+                                              fontSize: 14.0,
+                                              color: Color(0xff2E459A),
+                                              fontWeight: FontWeight.normal,
+                                              fontFamily: "Roboto"),
+                                        )),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
                                       children: [
-                                        Text(
-                                          "$count_enq_succ",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 30.0,
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "$count_enq_succ",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 30.0,
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                            Text(
+                                              "Success",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 10.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          "Success",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 10.0,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "$count_enq_wip",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 30.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                            Text(
+                                              "WIP",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 10.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          "$count_enq_wip",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 30.0,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
-                                        ),
-                                        Text(
-                                          "WIP",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 10.0,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          "$count_enq_new",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 30.0,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
-                                        ),
-                                        Text(
-                                          "New",
-                                          textScaleFactor: 1.0,
-                                          style: TextStyle(
-                                              fontSize: 10.0,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: "Roboto"),
-                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "$count_enq_new",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 30.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                            Text(
+                                              "New",
+                                              textScaleFactor: 1.0,
+                                              style: TextStyle(
+                                                  fontSize: 10.0,
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.normal,
+                                                  fontFamily: "Roboto"),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     )
                                   ],
-                                )
-                              ],
-                            ))
+                                )))
                       ],
                     ),
                     Column(

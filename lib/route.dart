@@ -1,5 +1,6 @@
 import 'package:bussiness_web_app/ui/pages/about/about.dart';
 import 'package:bussiness_web_app/ui/pages/about/product.dart';
+import 'package:bussiness_web_app/ui/pages/about/product_list.dart';
 import 'package:bussiness_web_app/ui/pages/about/profile.dart';
 import 'package:bussiness_web_app/ui/pages/agent/schedule.dart';
 import 'package:bussiness_web_app/ui/pages/home/agent_home.dart';
@@ -20,7 +21,8 @@ final routes = {
   '/home': (BuildContext context) => HomePage(),
   '/product1': (BuildContext context) => ProductPage(),
   '/agent_home': (BuildContext context) => AgentHomePage(),
-  '/product_list': (BuildContext context) => PropertyListPage(),
+  '/property_list': (BuildContext context) => PropertyListPage(),
+  '/product_list': (BuildContext context) => ProductListPage(),
   '/schedule_list': (BuildContext context) => ListSchedulePage(),
   '/about_page': (BuildContext context) => AboutPage(),
   '/delivery_home': (BuildContext context) => DeliveryHomePage(),
